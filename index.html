@@ -9,9 +9,14 @@
 <body>
   <header>
     <h1>Gestión de Productos</h1>
-    <label class="token">Token
-      <input type="password" id="token" value="secreto123" autocomplete="off">
-    </label>
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      <label class="token">URL de API
+        <input type="text" id="api_url" placeholder="https://tu-api.onrender.com" style="width: 260px;" autocomplete="off">
+      </label>
+      <label class="token">Token
+        <input type="password" id="token" value="secreto123" autocomplete="off">
+      </label>
+    </div>
   </header>
 
   <main>

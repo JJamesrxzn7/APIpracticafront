@@ -1,15 +1,46 @@
-const API = '/api/Productos';
 const $ = (id) => document.getElementById(id);
+
+// Determina la base URL de la API:
+// 1. Si el usuario ingresa una en el input "api_url" o si está en localStorage.
+// 2. Si no, usa el origen actual si no es github.io.
+const savedApiUrl = localStorage.getItem('API_URL') || '';
+if ($('api_url')) {
+  $('api_url').value = savedApiUrl;
+  $('api_url').addEventListener('change', () => {
+    localStorage.setItem('API_URL', $('api_url').value.trim());
+    load(1);
+  });
+}
+
+function getBaseUrl() {
+  const custom = $('api_url') ? $('api_url').value.trim().replace(/\/+$/, '') : '';
+  if (custom) return custom;
+  if (window.location.hostname.includes('github.io')) {
+    return '';
+  }
+  return '';
+}
+
+function getApiEndpoint(path = '') {
+  const base = getBaseUrl();
+  return `${base}/api/Productos${path}`;
+}
 
 const state = { page: 1, totalPages: 1, editingId: null };
 
 // Un solo punto de acceso a la API: añade el token y normaliza errores.
 async function request(path = '', options = {}) {
-  const res = await fetch(API + path, {
+  const endpoint = getApiEndpoint(path);
+  if (window.location.hostname.includes('github.io') && !getBaseUrl()) {
+    throw new Error('Por favor ingresa la URL de tu API de Render arriba para conectar GitHub Pages.');
+  }
+
+  const res = await fetch(endpoint, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${$('token').value.trim()}`,
+      ...(options.headers || {}),
     },
   });
   const json = await res.json().catch(() => ({}));
@@ -44,7 +75,6 @@ function renderRows(items) {
   }
   for (const p of items) {
     const tr = tbody.insertRow();
-    // textContent evita inyección de HTML con datos de la BD.
     tr.insertCell().textContent = p.id_producto;
     tr.insertCell().textContent = p.id_categoria;
     tr.insertCell().textContent = p.pro_descripcion;
