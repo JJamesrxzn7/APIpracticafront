@@ -3,74 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Productos - APIArqui</title>
+  <meta name="description" content="Sistema de Gestión de Productos - CRUD con arquitectura profesional y responsive design">
+  <title>Gestión de Productos - APIArqui</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
-    <h1>Gestión de Productos</h1>
-    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-      <label class="token">URL de API
-        <input type="text" id="api_url" placeholder="https://tu-api.onrender.com" style="width: 260px;" autocomplete="off">
-      </label>
-      <label class="token">Token
-        <input type="password" id="token" value="secreto123" autocomplete="off">
-      </label>
+    <div class="header-brand">
+      <svg class="brand-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      <div>
+        <h1>Gestión de Productos</h1>
+        <p class="subtitle">Panel de Control &bull; REST API</p>
+      </div>
+    </div>
+    <div class="header-status">
+      <span class="status-indicator" id="api-status-badge">
+        <span class="status-dot"></span> <span id="status-text">Conectado a Render</span>
+      </span>
     </div>
   </header>
 
   <main>
-    <section class="card">
+    <!-- Formulario de Producto -->
+    <section class="card" aria-labelledby="form-title">
       <h2 id="form-title">Nuevo producto</h2>
-      <form id="form">
-        <label>ID producto (máx. 10)
-          <input id="id_producto" maxlength="10" required>
-        </label>
-        <label>Categoría (máx. 10)
-          <input id="id_categoria" maxlength="10" required>
-        </label>
-        <label>Descripción (máx. 40)
-          <input id="pro_descripcion" maxlength="40" required>
-        </label>
-        <label>Precio de venta
-          <input id="pro_precio_venta" type="number" step="0.01" min="0" max="99999.99" required>
-        </label>
+      <form id="form" novalidate>
+        <div class="form-group">
+          <label for="id_producto">ID Producto <span class="required" aria-hidden="true">*</span></label>
+          <input id="id_producto" maxlength="10" placeholder="Ej. PROD0001" required autocomplete="off">
+          <small class="field-hint">Máximo 10 caracteres</small>
+        </div>
+
+        <div class="form-group">
+          <label for="id_categoria">Categoría <span class="required" aria-hidden="true">*</span></label>
+          <input id="id_categoria" maxlength="10" placeholder="Ej. CAT01" required autocomplete="off">
+          <small class="field-hint">Máximo 10 caracteres</small>
+        </div>
+
+        <div class="form-group">
+          <label for="pro_descripcion">Descripción <span class="required" aria-hidden="true">*</span></label>
+          <input id="pro_descripcion" maxlength="40" placeholder="Ej. Monitor Gamer 27 pulgadas" required autocomplete="off">
+          <small class="field-hint">Máximo 40 caracteres</small>
+        </div>
+
+        <div class="form-group">
+          <label for="pro_precio_venta">Precio de Venta ($) <span class="required" aria-hidden="true">*</span></label>
+          <input id="pro_precio_venta" type="number" step="0.01" min="0" max="99999.99" placeholder="0.00" required>
+        </div>
+
         <div class="actions">
-          <button type="submit" id="btn-save">Crear (POST)</button>
-          <button type="button" id="btn-patch" class="secondary" hidden>Actualizar parcial (PATCH)</button>
-          <button type="button" id="btn-cancel" class="ghost" hidden>Cancelar</button>
+          <button type="submit" id="btn-save" class="btn btn-primary">
+            <span class="btn-text">Crear Producto</span>
+          </button>
+          <button type="button" id="btn-patch" class="btn btn-secondary" hidden>Actualizar Parcial (PATCH)</button>
+          <button type="button" id="btn-cancel" class="btn btn-ghost" hidden>Cancelar</button>
         </div>
       </form>
-      <p id="msg" role="status"></p>
+      <div id="msg" role="status" aria-live="polite"></div>
     </section>
 
-    <section class="card">
+    <!-- Listado y Búsqueda -->
+    <section class="card" aria-labelledby="list-title">
       <div class="toolbar">
-        <h2>Listado</h2>
-        <form id="search-form">
-          <input id="search-id" placeholder="Buscar por ID exacto" maxlength="10">
-          <button type="submit" class="secondary">Buscar (GET :id)</button>
-          <button type="button" id="btn-all" class="ghost">Ver todos</button>
-        </form>
-        <label>Por página
-          <select id="limit">
-            <option>10</option><option>25</option><option>50</option><option>100</option>
-          </select>
-        </label>
+        <div>
+          <h2 id="list-title">Inventario de Productos</h2>
+          <span id="page-summary" class="summary-text">Cargando datos...</span>
+        </div>
+
+        <div class="toolbar-actions">
+          <form id="search-form" class="search-box" role="search">
+            <label for="search-id" class="sr-only">Buscar por ID de producto</label>
+            <input id="search-id" placeholder="Buscar por ID..." maxlength="10" autocomplete="off">
+            <button type="submit" class="btn btn-secondary" aria-label="Buscar producto">Buscar</button>
+            <button type="button" id="btn-all" class="btn btn-ghost">Limpiar</button>
+          </form>
+
+          <div class="per-page-select">
+            <label for="limit">Mostrar:</label>
+            <select id="limit" aria-label="Elementos por página">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <table>
-        <thead>
-          <tr><th>ID</th><th>Categoría</th><th>Descripción</th><th>Precio</th><th>Acciones</th></tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
-
-      <div class="pager">
-        <button id="prev" class="ghost">&laquo; Anterior</button>
-        <span id="page-info"></span>
-        <button id="next" class="ghost">Siguiente &raquo;</button>
+      <div class="table-container" tabindex="0" role="region" aria-label="Tabla de productos">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Categoría</th>
+              <th scope="col">Descripción</th>
+              <th scope="col" class="text-right">Precio ($)</th>
+              <th scope="col" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr>
+              <td colspan="5" class="loading-state">
+                <div class="spinner"></div> Cargando productos...
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      <nav class="pager" aria-label="Paginación de resultados">
+        <button id="prev" class="btn btn-ghost" aria-label="Página anterior">&laquo; Anterior</button>
+        <span id="page-info" aria-live="polite" class="page-indicator">Página 1</span>
+        <button id="next" class="btn btn-ghost" aria-label="Página siguiente">Siguiente &raquo;</button>
+      </nav>
     </section>
   </main>
 
