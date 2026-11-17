@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos - APIArqui</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Productos</h1>
+    <label class="token">Token
+      <input type="password" id="token" value="secreto123" autocomplete="off">
+    </label>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2 id="form-title">Nuevo producto</h2>
+      <form id="form">
+        <label>ID producto (máx. 10)
+          <input id="id_producto" maxlength="10" required>
+        </label>
+        <label>Categoría (máx. 10)
+          <input id="id_categoria" maxlength="10" required>
+        </label>
+        <label>Descripción (máx. 40)
+          <input id="pro_descripcion" maxlength="40" required>
+        </label>
+        <label>Precio de venta
+          <input id="pro_precio_venta" type="number" step="0.01" min="0" max="99999.99" required>
+        </label>
+        <div class="actions">
+          <button type="submit" id="btn-save">Crear (POST)</button>
+          <button type="button" id="btn-patch" class="secondary" hidden>Actualizar parcial (PATCH)</button>
+          <button type="button" id="btn-cancel" class="ghost" hidden>Cancelar</button>
+        </div>
+      </form>
+      <p id="msg" role="status"></p>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2>Listado</h2>
+        <form id="search-form">
+          <input id="search-id" placeholder="Buscar por ID exacto" maxlength="10">
+          <button type="submit" class="secondary">Buscar (GET :id)</button>
+          <button type="button" id="btn-all" class="ghost">Ver todos</button>
+        </form>
+        <label>Por página
+          <select id="limit">
+            <option>10</option><option>25</option><option>50</option><option>100</option>
+          </select>
+        </label>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Categoría</th><th>Descripción</th><th>Precio</th><th>Acciones</th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+
+      <div class="pager">
+        <button id="prev" class="ghost">&laquo; Anterior</button>
+        <span id="page-info"></span>
+        <button id="next" class="ghost">Siguiente &raquo;</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
